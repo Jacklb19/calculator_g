@@ -34,6 +34,7 @@ describe('findKeyByKeyboard', () => {
     ['x', { type: 'operator', operator: 'multiply' }],
     ['/', { type: 'operator', operator: 'divide' }],
     ['^', { type: 'operator', operator: 'power' }],
+    ['p', { type: 'operator', operator: 'power' }],
     ['%', { type: 'operator', operator: 'percentage' }],
     ['Enter', { type: 'equals' }],
     ['=', { type: 'equals' }],
@@ -46,7 +47,16 @@ describe('findKeyByKeyboard', () => {
     expect(findKeyByKeyboard(keyboardKey)?.action).toEqual(action)
   })
 
-  it.each(['a', 'Tab', ' ', 'ArrowUp', 'F5'])('ignores %j', (keyboardKey) => {
+  it.each([
+    ['R', { type: 'sqrt' }],
+    ['N', { type: 'negate' }],
+    ['P', { type: 'operator', operator: 'power' }],
+    ['X', { type: 'operator', operator: 'multiply' }],
+  ])('maps %s the same as its lowercase letter, so Caps Lock does not matter', (keyboardKey, action) => {
+    expect(findKeyByKeyboard(keyboardKey)?.action).toEqual(action)
+  })
+
+  it.each(['a', 'Tab', ' ', 'ArrowUp', 'F5', 'ENTER'])('ignores %j', (keyboardKey) => {
     expect(findKeyByKeyboard(keyboardKey)).toBeUndefined()
   })
 })

@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { ApiError } from './api/ApiError'
@@ -152,13 +152,23 @@ describe('App', () => {
       const { user } = renderApp(api)
 
       await user.keyboard('9{Control>}r{/Control}')
+      fireEvent.keyDown(window, { key: 'r', ctrlKey: true, altKey: true })
 
       expect(calculate).not.toHaveBeenCalled()
+    })
+
+    it('accepts characters typed with AltGr, which Windows reports as Ctrl+Alt', async () => {
+      const { user } = renderApp()
+
+      await user.keyboard('81')
+      fireEvent.keyDown(window, { key: '@', ctrlKey: true, altKey: true, modifierAltGraph: true })
+
+      await waitFor(() => expect(displayValue()).toBe('9'))
     })
   })
 
   describe('while loading', () => {
-    it('disables the keypad and ignores the keyboard', async () => {
+    it('marks the keypad unavailable without making it unfocusable, and ignores input', async () => {
       let resolve!: (result: CalculationResult) => void
       const { api } = fakeApi(() => new Promise((res) => (resolve = res)))
       const { user } = renderApp(api)
@@ -166,12 +176,17 @@ describe('App', () => {
       await clickKeys(user, '2', 'Add', '3', 'Equals')
 
       expect(screen.getByRole('region', { name: 'Calculator' })).toHaveAttribute('aria-busy', 'true')
-      for (const button of screen.getAllByRole('button')) expect(button).toBeDisabled()
+      for (const button of screen.getAllByRole('button')) {
+        expect(button).toHaveAttribute('aria-disabled', 'true')
+        expect(button).toBeEnabled()
+      }
+      expect(key('Equals')).toHaveFocus()
       await user.keyboard('9')
+      await user.click(key('9'))
       expect(displayValue()).toBe('3')
 
       resolve({ operation: 'add', operands: [2, 3], result: 5 })
-      await waitFor(() => expect(key('9')).toBeEnabled())
+      await waitFor(() => expect(key('9')).toHaveAttribute('aria-disabled', 'false'))
       expect(displayValue()).toBe('5')
     })
   })

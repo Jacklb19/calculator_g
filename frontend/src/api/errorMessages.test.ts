@@ -6,7 +6,7 @@ describe('friendlyMessage', () => {
   it.each([
     ['DIVISION_BY_ZERO', "Can't divide by zero."],
     ['DOMAIN_ERROR', 'No real result for that input.'],
-    ['RESULT_OUT_OF_RANGE', 'The result is too large to display.'],
+    ['RESULT_OUT_OF_RANGE', 'The result is too large.'],
     ['NETWORK_ERROR', "Can't reach the server. Check your connection."],
     ['TIMEOUT', 'The server took too long to respond. Please try again.'],
   ])('maps %s to a friendly message', (code, expected) => {

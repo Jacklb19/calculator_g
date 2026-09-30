@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { ApiError } from '../api/ApiError'
 import type { ApiClient } from '../api/client'
 import type { CalculationResult } from '../api/types'
@@ -47,6 +47,12 @@ describe('useCalculator', () => {
     pending.resolve({ operation: 'add', operands: [2, 3], result: 5 })
     await waitFor(() => expect(result.current.state.entry).toEqual({ kind: 'value', value: 5 }))
     expect(result.current.state.request).toBeNull()
+  })
+
+  it('only lets callers dispatch input actions', () => {
+    const { result } = renderCalculator(fakeClient().client)
+
+    expectTypeOf(result.current.dispatch).parameter(0).toEqualTypeOf<InputAction>()
   })
 
   it('does not send anything until a calculation is requested', () => {

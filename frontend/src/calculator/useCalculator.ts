@@ -1,10 +1,15 @@
-import { useEffect, useReducer } from 'react'
+import { useEffect, useReducer, type Dispatch } from 'react'
 import { ApiError } from '../api/ApiError'
 import type { ApiClient } from '../api/client'
-import { calculatorReducer, initialState } from './reducer'
+import { calculatorReducer, initialState, type CalculatorState, type InputAction } from './reducer'
+
+interface Calculator {
+  state: CalculatorState
+  dispatch: Dispatch<InputAction>
+}
 
 // client must be referentially stable: a new instance per render would abort and resend the request.
-export function useCalculator(client: ApiClient) {
+export function useCalculator(client: ApiClient): Calculator {
   const [state, dispatch] = useReducer(calculatorReducer, initialState)
   const { request } = state
 

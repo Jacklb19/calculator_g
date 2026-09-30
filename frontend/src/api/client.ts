@@ -43,13 +43,26 @@ export function createApiClient({
   }
 }
 
+// Links the caller's signal by hand: AbortSignal.any needs Safari 17.4, above the build's Safari 16.4 target.
 function startTimeout(ms: number, parent?: AbortSignal) {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), ms)
+  let timedOut = false
+  const timer = setTimeout(() => {
+    timedOut = true
+    controller.abort()
+  }, ms)
+  const abortFromParent = () => controller.abort(parent?.reason)
+
+  if (parent?.aborted) abortFromParent()
+  parent?.addEventListener('abort', abortFromParent)
+
   return {
-    signal: parent ? AbortSignal.any([parent, controller.signal]) : controller.signal,
-    timedOut: () => controller.signal.aborted,
-    clear: () => clearTimeout(timer),
+    signal: controller.signal,
+    timedOut: () => timedOut,
+    clear: () => {
+      clearTimeout(timer)
+      parent?.removeEventListener('abort', abortFromParent)
+    },
   }
 }
 

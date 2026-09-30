@@ -6,7 +6,7 @@ const GENERIC_MESSAGE = 'Something went wrong. Please try again.'
 const FRIENDLY_MESSAGES: Record<KnownErrorCode, string> = {
   DIVISION_BY_ZERO: "Can't divide by zero.",
   DOMAIN_ERROR: 'No real result for that input.',
-  RESULT_OUT_OF_RANGE: 'The result is too large to display.',
+  RESULT_OUT_OF_RANGE: 'The result is too large.',
   INVALID_OPERANDS: 'Please enter a valid number.',
   UNKNOWN_OPERATION: "That operation isn't supported.",
   NETWORK_ERROR: "Can't reach the server. Check your connection.",

@@ -21,7 +21,7 @@ export function Keypad({ onKey, disabled, activeOperator }: KeypadProps) {
           aria-label={key.name}
           aria-keyshortcuts={key.keyboard.map(toShortcutName).join(' ')}
           aria-pressed={pressedState(key, activeOperator)}
-          disabled={disabled}
+          aria-disabled={disabled}
           onClick={() => onKey(key.action)}
         >
           {key.label}

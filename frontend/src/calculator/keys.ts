@@ -49,7 +49,7 @@ export const KEYS: readonly KeyDefinition[] = [
   operator('divide', '÷', 'Divide', ['/']),
 
   { label: '√', name: 'Square root', action: { type: 'sqrt' }, keyboard: ['r', '@'], variant: 'function' },
-  operator('power', 'xʸ', 'Power', ['^'], 'function'),
+  operator('power', 'xʸ', 'Power', ['^', 'p'], 'function'),
   operator('percentage', '%', 'Percent of', ['%'], 'function'),
   operator('multiply', '×', 'Multiply', ['*', 'x']),
 
@@ -75,5 +75,5 @@ export const KEYS: readonly KeyDefinition[] = [
 const KEYS_BY_KEYBOARD = new Map(KEYS.flatMap((key) => key.keyboard.map((k) => [k, key] as const)))
 
 export function findKeyByKeyboard(key: string): KeyDefinition | undefined {
-  return KEYS_BY_KEYBOARD.get(key)
+  return KEYS_BY_KEYBOARD.get(key.length === 1 ? key.toLowerCase() : key)
 }

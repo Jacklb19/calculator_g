@@ -48,7 +48,7 @@
   grid-row: span 2;
 }
 
-.key:active:not(:disabled) {
+.key:active:not([aria-disabled='true']) {
   transform: translateY(2px);
   box-shadow: 0 0 0 var(--key-shadow);
 }
@@ -58,7 +58,7 @@
   outline-offset: 2px;
 }
 
-.key:disabled {
+.key[aria-disabled='true'] {
   opacity: 0.55;
   cursor: progress;
 }

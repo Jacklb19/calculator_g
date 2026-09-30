@@ -19,6 +19,7 @@ function hangingFetch() {
   return vi.fn<typeof fetch>(
     (_input, init) =>
       new Promise((_resolve, reject) => {
+        if (init?.signal?.aborted) reject(init.signal.reason)
         init?.signal?.addEventListener('abort', () => reject(init.signal?.reason))
       }),
   )
@@ -146,5 +147,40 @@ describe('calculate', () => {
     const error = await pending
     expect(error).not.toBeInstanceOf(ApiError)
     expect(error).toMatchObject({ name: 'AbortError' })
+  })
+
+  it('works in browsers without AbortSignal.any', async () => {
+    vi.spyOn(AbortSignal, 'any').mockImplementation(() => {
+      throw new TypeError('AbortSignal.any is not a function')
+    })
+    const body = { operation: 'add', operands: [2, 3], result: 5 }
+    const client = createApiClient({ fetch: mockFetch(jsonResponse(body)) })
+
+    await expect(
+      client.calculate('add', [2, 3], { signal: new AbortController().signal }),
+    ).resolves.toEqual(body)
+  })
+
+  it('rejects with the abort when the caller signal is already aborted', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    const client = createApiClient({ fetch: hangingFetch() })
+
+    const error = await captureError(client.calculate('add', [1, 2], { signal: controller.signal }))
+
+    expect(error).not.toBeInstanceOf(ApiError)
+    expect(error).toMatchObject({ name: 'AbortError' })
+  })
+
+  it('stops listening to the caller signal once the request settles', async () => {
+    const controller = new AbortController()
+    const removeListener = vi.spyOn(controller.signal, 'removeEventListener')
+    const client = createApiClient({
+      fetch: mockFetch(jsonResponse({ operation: 'add', operands: [1, 2], result: 3 })),
+    })
+
+    await client.calculate('add', [1, 2], { signal: controller.signal })
+
+    expect(removeListener).toHaveBeenCalledWith('abort', expect.any(Function))
   })
 })
