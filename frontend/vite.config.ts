@@ -10,6 +10,11 @@ export default defineConfig({
   },
   test: {
     restoreMocks: true,
+    coverage: {
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx'],
+      reporter: ['text-summary', 'html'],
+    },
     projects: [
       {
         extends: true,

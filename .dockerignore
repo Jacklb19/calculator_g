@@ -1,0 +1,11 @@
+.git
+.github
+.claude
+.kilo
+**/node_modules
+**/dist
+**/coverage
+**/*.out
+backend/bin
+Dockerfile
+.dockerignore
