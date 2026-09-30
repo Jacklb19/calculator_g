@@ -32,5 +32,11 @@ func squareRoot(x float64) (float64, error) {
 
 // percentage returns percent% of total.
 func percentage(percent, total float64) (float64, error) {
-	return percent * total / 100, nil
+	result := percent * total / 100
+	if math.IsInf(result, 0) {
+		// percent*total can overflow even when the result fits (1e308% of 10). Dividing first
+		// avoids that, but costs precision for ordinary inputs (7% of 3), so it is only the fallback.
+		result = percent / 100 * total
+	}
+	return result, nil
 }

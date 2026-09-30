@@ -77,6 +77,41 @@ func TestApplyReturnsMathError(t *testing.T) {
 	}
 }
 
+func TestPercentageOfHugeNumbers(t *testing.T) {
+	tests := []struct {
+		name     string
+		operands []float64
+		want     float64
+	}{
+		{"percent times total overflows", []float64{1e308, 10}, 1e307},
+		{"negative percent", []float64{-1e308, 50}, -5e307},
+		{"total near the float64 limit", []float64{50, math.MaxFloat64}, math.MaxFloat64 / 2},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := apply(t, "percentage", tt.operands...)
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if relativeError(got, tt.want) > 1e-15 {
+				t.Errorf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPercentageStillOverflowsWhenTheResultDoesNotFit(t *testing.T) {
+	_, err := apply(t, "percentage", 1e308, 1e5)
+	if !errors.Is(err, calculator.ErrOutOfRange) {
+		t.Errorf("got error %v, want ErrOutOfRange", err)
+	}
+}
+
+func relativeError(got, want float64) float64 {
+	return math.Abs(got-want) / math.Abs(want)
+}
+
 func TestApplyNeverReturnsNegativeZero(t *testing.T) {
 	got, err := apply(t, "multiply", -1, 0)
 	if err != nil {

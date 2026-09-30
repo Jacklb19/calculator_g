@@ -19,11 +19,11 @@ const shutdownTimeout = 10 * time.Second
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	// Restores default signal handling after the first signal, so a second Ctrl+C kills a stuck shutdown.
+	context.AfterFunc(ctx, stop)
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	err := run(ctx, os.Getenv, logger)
-	stop()
-	if err != nil {
+	if err := run(ctx, os.Getenv, logger); err != nil {
 		logger.Error("server failed", "err", err)
 		os.Exit(1)
 	}
@@ -42,7 +42,7 @@ func run(ctx context.Context, getenv func(string) string, logger *slog.Logger) e
 	logger.Info("listening", "addr", listener.Addr().String(), "static_dir", cfg.staticDir)
 
 	srv := newServer(httpapi.NewHandler(logger, cfg.staticFS()), logger)
-	return serve(ctx, srv, listener, logger)
+	return serve(ctx, srv, listener, logger, shutdownTimeout)
 }
 
 func newServer(handler http.Handler, logger *slog.Logger) *http.Server {
@@ -56,7 +56,7 @@ func newServer(handler http.Handler, logger *slog.Logger) *http.Server {
 	}
 }
 
-func serve(ctx context.Context, srv *http.Server, listener net.Listener, logger *slog.Logger) error {
+func serve(ctx context.Context, srv *http.Server, listener net.Listener, logger *slog.Logger, shutdownTimeout time.Duration) error {
 	serveErr := make(chan error, 1)
 	go func() { serveErr <- srv.Serve(listener) }()
 
@@ -71,7 +71,7 @@ func serve(ctx context.Context, srv *http.Server, listener net.Listener, logger 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 	if err := srv.Shutdown(shutdownCtx); err != nil {
-		return fmt.Errorf("shutting down: %w", err)
+		return errors.Join(fmt.Errorf("shutting down: %w", err), srv.Close())
 	}
 	if err := <-serveErr; !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("serving: %w", err)
