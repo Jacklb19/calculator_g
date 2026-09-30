@@ -1,3 +1,4 @@
+// Package calculator implements the calculator's operations, independent of how they are exposed.
 package calculator
 
 import (
@@ -5,9 +6,11 @@ import (
 	"math"
 )
 
+// Operation is an arithmetic operation with a fixed number of operands.
+// Get one from Lookup; the zero value cannot be applied.
 type Operation struct {
-	Name  string
-	Arity int
+	Name  string // identifier used in the API path, such as "add"
+	Arity int    // number of operands Apply expects
 	apply func(operands []float64) (float64, error)
 }
 
@@ -21,6 +24,8 @@ var operations = index(
 	binary("percentage", percentage),
 )
 
+// Lookup returns the operation registered under name, which is case-sensitive.
+// For unregistered names the error wraps ErrUnknownOperation.
 func Lookup(name string) (Operation, error) {
 	op, ok := operations[name]
 	if !ok {
@@ -29,6 +34,9 @@ func Lookup(name string) (Operation, error) {
 	return op, nil
 }
 
+// Apply validates the operands and computes the result. Errors wrap ErrInvalidOperands,
+// ErrDivisionByZero, ErrDomain or ErrOutOfRange. A result without error is always finite
+// and never negative zero.
 func (op Operation) Apply(operands ...float64) (float64, error) {
 	if err := op.validate(operands); err != nil {
 		return 0, err

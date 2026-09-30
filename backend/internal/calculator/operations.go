@@ -30,7 +30,6 @@ func squareRoot(x float64) (float64, error) {
 	return math.Sqrt(x), nil
 }
 
-// percentage returns percent% of total.
 func percentage(percent, total float64) (float64, error) {
 	result := percent * total / 100
 	if math.IsInf(result, 0) {

@@ -1,3 +1,5 @@
+// Command server runs the calculator API. It is configured through environment variables:
+// PORT (default 8080), HOST (default: all interfaces) and STATIC_DIR (optional frontend build to serve).
 package main
 
 import (

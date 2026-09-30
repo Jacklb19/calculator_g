@@ -1,3 +1,4 @@
+// Package httpapi exposes the calculator as a JSON REST API and can also serve the frontend build.
 package httpapi
 
 import (
@@ -35,14 +36,15 @@ func (s *server) apiRoutes() *http.ServeMux {
 // responses with the API's JSON error shape, keeping the Allow header.
 func (s *server) withJSONFallback(mux *http.ServeMux) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fallback, pattern := mux.Handler(r)
+		handler, pattern := mux.Handler(r)
 		if pattern != "" {
+			// Through the mux rather than handler: only ServeHTTP populates r.PathValue.
 			mux.ServeHTTP(w, r)
 			return
 		}
 
 		captured := newCaptureWriter()
-		fallback.ServeHTTP(captured, r)
+		handler.ServeHTTP(captured, r)
 		if captured.status == http.StatusMethodNotAllowed {
 			w.Header().Set("Allow", captured.header.Get("Allow"))
 			s.writeError(w, fmt.Errorf("%w: %s", errMethodNotAllowed, r.Method))
