@@ -1,12 +1,10 @@
 import { useEffect, useReducer } from 'react'
 import { ApiError } from '../api/ApiError'
-import { createApiClient, type ApiClient } from '../api/client'
+import type { ApiClient } from '../api/client'
 import { calculatorReducer, initialState } from './reducer'
 
-const defaultClient = createApiClient()
-
 // client must be referentially stable: a new instance per render would abort and resend the request.
-export function useCalculator(client: ApiClient = defaultClient) {
+export function useCalculator(client: ApiClient) {
   const [state, dispatch] = useReducer(calculatorReducer, initialState)
   const { request } = state
 

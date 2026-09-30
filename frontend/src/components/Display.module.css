@@ -1,0 +1,76 @@
+.display {
+  container-type: inline-size;
+  padding: 0.625rem 0.875rem 0.5rem;
+  border-radius: 0.625rem;
+  background: var(--lcd);
+  color: var(--lcd-ink);
+  font-family: var(--font-lcd);
+  text-shadow: var(--lcd-glow);
+  box-shadow:
+    inset 0 2px 6px rgb(0 0 0 / 0.4),
+    0 0 0 3px var(--casing-edge);
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 1.25rem;
+  font-size: 0.8125rem;
+}
+
+.expression {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.flags {
+  display: flex;
+  gap: 0.5rem;
+  letter-spacing: 0.08em;
+}
+
+/* Unlit segments stay faintly visible, like on a real LCD. */
+.flag {
+  color: var(--lcd-dim);
+  text-shadow: none;
+}
+
+.flag[data-on='true'] {
+  color: var(--lcd-ink);
+  text-shadow: var(--lcd-glow);
+}
+
+.flag:first-child[data-on='true'] {
+  animation: blink 0.8s steps(2, jump-none) infinite;
+}
+
+.value {
+  display: block;
+  height: 3.25rem;
+  overflow: hidden;
+  text-align: end;
+  white-space: nowrap;
+  font-size: min(2.75rem, 100cqi / (max(var(--chars), 1) * 0.56));
+  line-height: 3.25rem;
+}
+
+.error {
+  min-height: 2.5em;
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+}
+
+@keyframes blink {
+  to {
+    color: var(--lcd-dim);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flag:first-child[data-on='true'] {
+    animation: none;
+  }
+}

@@ -1,3 +1,54 @@
+:root {
+  color-scheme: dark;
+
+  --font-lcd: 'Share Tech Mono', ui-monospace, monospace;
+  --font-ui: 'Archivo Variable', system-ui, sans-serif;
+
+  --page: #0f1114;
+  --casing: #1c1f25;
+  --casing-edge: #2c3038;
+  --casing-highlight: #343942;
+  --key-digit: #2d3139;
+  --key-digit-ink: #eef0f3;
+  --key-function: #444a55;
+  --key-function-ink: #eef0f3;
+  --key-operator: #f08a24;
+  --key-operator-ink: #1b1106;
+  --key-shadow: #07080a;
+  --focus: #ffd08a;
+
+  /* Dark mode: the LCD backlight is on. */
+  --lcd: #0b2214;
+  --lcd-ink: #7ff5a0;
+  --lcd-dim: rgb(127 245 160 / 0.16);
+  --lcd-glow: 0 0 6px rgb(127 245 160 / 0.55);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+
+    --page: #d9dde2;
+    --casing: #eceef1;
+    --casing-edge: #c4cad2;
+    --casing-highlight: #ffffff;
+    --key-digit: #ffffff;
+    --key-digit-ink: #1c1f25;
+    --key-function: #cdd2d9;
+    --key-function-ink: #1c1f25;
+    --key-operator: #ec7d12;
+    --key-operator-ink: #1b1106;
+    --key-shadow: #a5acb6;
+    --focus: #1c1f25;
+
+    /* Light mode: an unlit reflective LCD. */
+    --lcd: #b6c69a;
+    --lcd-ink: #1a2712;
+    --lcd-dim: rgb(26 39 18 / 0.14);
+    --lcd-glow: none;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -6,5 +57,15 @@
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  background: var(--page);
+  font-family: var(--font-ui);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

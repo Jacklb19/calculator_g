@@ -1,0 +1,70 @@
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: clamp(3rem, 15vw, 3.5rem);
+  gap: 0.5rem;
+}
+
+.key {
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--key-digit);
+  color: var(--key-digit-ink);
+  font-family: var(--font-ui);
+  font-size: 1.375rem;
+  font-weight: 600;
+  font-stretch: 87.5%;
+  box-shadow: 0 2px 0 var(--key-shadow);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    transform 60ms ease-out,
+    box-shadow 60ms ease-out;
+}
+
+.key[data-variant='function'] {
+  background: var(--key-function);
+  color: var(--key-function-ink);
+  font-size: 1.125rem;
+}
+
+.key[data-variant='operator'] {
+  background: var(--key-operator);
+  color: var(--key-operator-ink);
+  font-size: 1.625rem;
+}
+
+.key[aria-pressed='true'] {
+  background: var(--casing);
+  color: var(--key-operator);
+  box-shadow: inset 0 0 0 2px var(--key-operator);
+}
+
+.key[data-span='wide'] {
+  grid-column: span 2;
+}
+
+.key[data-span='tall'] {
+  grid-row: span 2;
+}
+
+.key:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--key-shadow);
+}
+
+.key:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.key:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .key {
+    transition: none;
+  }
+}
