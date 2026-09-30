@@ -3,7 +3,7 @@ PORT ?= 8080
 GOTESTFLAGS ?=
 
 .PHONY: help install lint lint-backend lint-frontend test test-backend test-frontend \
-	coverage coverage-backend coverage-frontend build run-backend run-frontend \
+	coverage coverage-backend coverage-frontend coverage-report build run-backend run-frontend \
 	docker-build docker-run smoke clean
 
 help: ## List the available targets
@@ -38,6 +38,10 @@ coverage-backend:
 
 coverage-frontend:
 	cd frontend && npm run coverage
+
+coverage-report: coverage-backend ## Write HTML coverage reports to docs/coverage
+	cd backend && go tool cover -html=coverage.out -o ../docs/coverage/backend.html
+	cd frontend && npx vitest run --coverage --coverage.reporter=html --coverage.reportsDirectory=../docs/coverage/frontend
 
 build: ## Build the frontend and the server binary (backend/bin/server)
 	cd frontend && npm run build

@@ -1,0 +1,811 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>server: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/Jacklb19/calculator/backend/cmd/server/config.go (100.0%)</option>
+				
+				<option value="file1">github.com/Jacklb19/calculator/backend/cmd/server/main.go (63.6%)</option>
+				
+				<option value="file2">github.com/Jacklb19/calculator/backend/internal/calculator/operations.go (100.0%)</option>
+				
+				<option value="file3">github.com/Jacklb19/calculator/backend/internal/calculator/registry.go (100.0%)</option>
+				
+				<option value="file4">github.com/Jacklb19/calculator/backend/internal/httpapi/errors.go (100.0%)</option>
+				
+				<option value="file5">github.com/Jacklb19/calculator/backend/internal/httpapi/handlers.go (100.0%)</option>
+				
+				<option value="file6">github.com/Jacklb19/calculator/backend/internal/httpapi/middleware.go (96.6%)</option>
+				
+				<option value="file7">github.com/Jacklb19/calculator/backend/internal/httpapi/request.go (100.0%)</option>
+				
+				<option value="file8">github.com/Jacklb19/calculator/backend/internal/httpapi/response.go (90.0%)</option>
+				
+				<option value="file9">github.com/Jacklb19/calculator/backend/internal/httpapi/router.go (100.0%)</option>
+				
+				<option value="file10">github.com/Jacklb19/calculator/backend/internal/httpapi/static.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "fmt"
+        "io/fs"
+        "net"
+        "os"
+        "path/filepath"
+        "strconv"
+)
+
+const defaultPort = 8080
+
+type config struct {
+        host      string
+        port      int
+        staticDir string
+}
+
+func loadConfig(getenv func(string) string) (config, error) {
+        <span class="cov8" title="1">port, err := parsePort(getenv("PORT"))
+        if err != nil </span>{
+                <span class="cov8" title="1">return config{}, err
+</span>        }
+        <span class="cov8" title="1">staticDir := getenv("STATIC_DIR")
+        if err := validateStaticDir(staticDir); err != nil </span>{
+                <span class="cov8" title="1">return config{}, err
+</span>        }
+        <span class="cov8" title="1">return config{host: getenv("HOST"), port: port, staticDir: staticDir}, nil</span>
+}
+
+func parsePort(raw string) (int, error) {
+        <span class="cov8" title="1">if raw == "" </span>{
+                <span class="cov8" title="1">return defaultPort, nil
+</span>        }
+        <span class="cov8" title="1">port, err := strconv.Atoi(raw)
+        if err != nil || port &lt; 1 || port &gt; 65535 </span>{
+                <span class="cov8" title="1">return 0, fmt.Errorf("invalid PORT %q: must be an integer between 1 and 65535", raw)
+</span>        }
+        <span class="cov8" title="1">return port, nil</span>
+}
+
+func validateStaticDir(dir string) error {
+        <span class="cov8" title="1">if dir == "" </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">if _, err := os.Stat(filepath.Join(dir, "index.html")); err != nil </span>{
+                <span class="cov8" title="1">return fmt.Errorf("invalid STATIC_DIR %q: %w", dir, err)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (c config) addr() string {
+        <span class="cov8" title="1">return net.JoinHostPort(c.host, strconv.Itoa(c.port))
+</span>}
+
+func (c config) staticFS() fs.FS {
+        <span class="cov8" title="1">if c.staticDir == "" </span>{
+                <span class="cov8" title="1">return nil
+</span>        }
+        <span class="cov8" title="1">return os.DirFS(c.staticDir)</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">// Command server runs the calculator API. It is configured through environment variables:
+// PORT (default 8080), HOST (default: all interfaces) and STATIC_DIR (optional frontend build to serve).
+package main
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "log/slog"
+        "net"
+        "net/http"
+        "os"
+        "os/signal"
+        "syscall"
+        "time"
+
+        "github.com/Jacklb19/calculator/backend/internal/httpapi"
+)
+
+const shutdownTimeout = 10 * time.Second
+
+func main() {
+        <span class="cov0" title="0">ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+</span>        // Restores default signal handling after the first signal, so a second Ctrl+C kills a stuck shutdown.
+        <span class="cov0" title="0">context.AfterFunc(ctx, stop)
+        logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+</span>
+        <span class="cov0" title="0">if err := run(ctx, os.Getenv, logger); err != nil </span>{
+                <span class="cov0" title="0">logger.Error("server failed", "err", err)
+                os.Exit(1)
+</span>        }
+}
+
+func run(ctx context.Context, getenv func(string) string, logger *slog.Logger) error {
+        <span class="cov8" title="1">cfg, err := loadConfig(getenv)
+        if err != nil </span>{
+                <span class="cov8" title="1">return err
+</span>        }
+
+        <span class="cov8" title="1">listener, err := net.Listen("tcp", cfg.addr())
+        if err != nil </span>{
+                <span class="cov8" title="1">return fmt.Errorf("listening on %s: %w", cfg.addr(), err)
+</span>        }
+        <span class="cov8" title="1">logger.Info("listening", "addr", listener.Addr().String(), "static_dir", cfg.staticDir)
+</span>
+        <span class="cov8" title="1">srv := newServer(httpapi.NewHandler(logger, cfg.staticFS()), logger)
+        return serve(ctx, srv, listener, logger, shutdownTimeout)</span>
+}
+
+func newServer(handler http.Handler, logger *slog.Logger) *http.Server {
+        <span class="cov8" title="1">return &amp;http.Server{
+                Handler:           handler,
+                ReadHeaderTimeout: 5 * time.Second,
+                ReadTimeout:       10 * time.Second,
+                WriteTimeout:      10 * time.Second,
+                IdleTimeout:       60 * time.Second,
+                ErrorLog:          slog.NewLogLogger(logger.Handler(), slog.LevelError),
+</span>        }
+}
+
+func serve(ctx context.Context, srv *http.Server, listener net.Listener, logger *slog.Logger, shutdownTimeout time.Duration) error {
+        <span class="cov8" title="1">serveErr := make(chan error, 1)
+        go func() </span>{ <span class="cov8" title="1">serveErr &lt;- srv.Serve(listener) }</span>()
+
+        <span class="cov8" title="1">select </span>{
+        case err := &lt;-serveErr:
+                <span class="cov0" title="0">return fmt.Errorf("serving: %w", err)</span>
+        case &lt;-ctx.Done():<span class="cov8" title="1"></span>
+        }
+
+        <span class="cov8" title="1">logger.Info("shutting down")
+</span>        // The parent context is already cancelled, so shutdown needs its own deadline.
+        <span class="cov8" title="1">shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+        defer cancel()
+        if err := srv.Shutdown(shutdownCtx); err != nil </span>{
+                <span class="cov8" title="1">return errors.Join(fmt.Errorf("shutting down: %w", err), srv.Close())
+</span>        }
+        <span class="cov8" title="1">if err := &lt;-serveErr; !errors.Is(err, http.ErrServerClosed) </span>{
+                <span class="cov0" title="0">return fmt.Errorf("serving: %w", err)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package calculator
+
+import (
+        "fmt"
+        "math"
+)
+
+func add(a, b float64) (float64, error)      { <span class="cov8" title="1">return a + b, nil }</span>
+func subtract(a, b float64) (float64, error) { <span class="cov8" title="1">return a - b, nil }</span>
+func multiply(a, b float64) (float64, error) { <span class="cov8" title="1">return a * b, nil }</span>
+
+func divide(a, b float64) (float64, error) {
+        <span class="cov8" title="1">if b == 0 </span>{
+                <span class="cov8" title="1">return 0, ErrDivisionByZero
+</span>        }
+        <span class="cov8" title="1">return a / b, nil</span>
+}
+
+func power(base, exponent float64) (float64, error) {
+        <span class="cov8" title="1">if base == 0 &amp;&amp; exponent &lt; 0 </span>{
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w: zero raised to a negative power", ErrDivisionByZero)
+</span>        }
+        <span class="cov8" title="1">return math.Pow(base, exponent), nil</span>
+}
+
+func squareRoot(x float64) (float64, error) {
+        <span class="cov8" title="1">if x &lt; 0 </span>{
+                <span class="cov8" title="1">return 0, fmt.Errorf("%w: square root of a negative number", ErrDomain)
+</span>        }
+        <span class="cov8" title="1">return math.Sqrt(x), nil</span>
+}
+
+func percentage(percent, total float64) (float64, error) {
+        <span class="cov8" title="1">result := percent * total / 100
+        if math.IsInf(result, 0) </span>{
+                // percent*total can overflow even when the result fits (1e308% of 10). Dividing first
+                // avoids that, but costs precision for ordinary inputs (7% of 3), so it is only the fallback.
+                <span class="cov8" title="1">result = percent / 100 * total
+</span>        }
+        <span class="cov8" title="1">return result, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">// Package calculator implements the calculator's operations, independent of how they are exposed.
+package calculator
+
+import (
+        "fmt"
+        "math"
+)
+
+// Operation is an arithmetic operation with a fixed number of operands.
+// Get one from Lookup; the zero value cannot be applied.
+type Operation struct {
+        Name  string // identifier used in the API path, such as "add"
+        Arity int    // number of operands Apply expects
+        apply func(operands []float64) (float64, error)
+}
+
+var operations = index(
+        binary("add", add),
+        binary("subtract", subtract),
+        binary("multiply", multiply),
+        binary("divide", divide),
+        binary("power", power),
+        unary("sqrt", squareRoot),
+        binary("percentage", percentage),
+)
+
+// Lookup returns the operation registered under name, which is case-sensitive.
+// For unregistered names the error wraps ErrUnknownOperation.
+func Lookup(name string) (Operation, error) {
+        <span class="cov8" title="1">op, ok := operations[name]
+        if !ok </span>{
+                <span class="cov8" title="1">return Operation{}, fmt.Errorf("%w: %q", ErrUnknownOperation, name)
+</span>        }
+        <span class="cov8" title="1">return op, nil</span>
+}
+
+// Apply validates the operands and computes the result. Errors wrap ErrInvalidOperands,
+// ErrDivisionByZero, ErrDomain or ErrOutOfRange. A result without error is always finite
+// and never negative zero.
+func (op Operation) Apply(operands ...float64) (float64, error) {
+        <span class="cov8" title="1">if err := op.validate(operands); err != nil </span>{
+                <span class="cov8" title="1">return 0, err
+</span>        }
+        <span class="cov8" title="1">result, err := op.apply(operands)
+        if err != nil </span>{
+                <span class="cov8" title="1">return 0, err
+</span>        }
+        <span class="cov8" title="1">return checkResult(result)</span>
+}
+
+func (op Operation) validate(operands []float64) error {
+        <span class="cov8" title="1">if len(operands) != op.Arity </span>{
+                <span class="cov8" title="1">return fmt.Errorf("%w: %s expects %d operand(s), got %d",
+                        ErrInvalidOperands, op.Name, op.Arity, len(operands))
+</span>        }
+        <span class="cov8" title="1">for i, x := range operands </span>{
+                <span class="cov8" title="1">if !isFinite(x) </span>{
+                        <span class="cov8" title="1">return fmt.Errorf("%w: operand %d is not a finite number", ErrInvalidOperands, i+1)
+</span>                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func checkResult(x float64) (float64, error) {
+        <span class="cov8" title="1">switch </span>{
+        case math.IsNaN(x):
+                <span class="cov8" title="1">return 0, ErrDomain</span>
+        case math.IsInf(x, 0):
+                <span class="cov8" title="1">return 0, ErrOutOfRange</span>
+        case x == 0:
+                // Collapses -0 to 0; encoding/json would otherwise emit "-0".
+                <span class="cov8" title="1">return 0, nil</span>
+        default:
+                <span class="cov8" title="1">return x, nil</span>
+        }
+}
+
+func isFinite(x float64) bool {
+        <span class="cov8" title="1">return !math.IsNaN(x) &amp;&amp; !math.IsInf(x, 0)
+</span>}
+
+func unary(name string, f func(float64) (float64, error)) Operation {
+        <span class="cov8" title="1">return Operation{
+                Name:  name,
+                Arity: 1,
+                apply: func(x []float64) (float64, error) </span>{ <span class="cov8" title="1">return f(x[0]) }</span>,
+        }
+}
+
+func binary(name string, f func(a, b float64) (float64, error)) Operation {
+        <span class="cov8" title="1">return Operation{
+                Name:  name,
+                Arity: 2,
+                apply: func(x []float64) (float64, error) </span>{ <span class="cov8" title="1">return f(x[0], x[1]) }</span>,
+        }
+}
+
+func index(ops ...Operation) map[string]Operation {
+        <span class="cov8" title="1">byName := make(map[string]Operation, len(ops))
+        for _, op := range ops </span>{
+                <span class="cov8" title="1">byName[op.Name] = op
+</span>        }
+        <span class="cov8" title="1">return byName</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package httpapi
+
+import (
+        "errors"
+        "net/http"
+
+        "github.com/Jacklb19/calculator/backend/internal/calculator"
+)
+
+var (
+        errInvalidJSON          = errors.New("invalid JSON")
+        errUnsupportedMediaType = errors.New("unsupported media type")
+        errPayloadTooLarge      = errors.New("request body too large")
+        errNotFound             = errors.New("not found")
+        errMethodNotAllowed     = errors.New("method not allowed")
+)
+
+type errorResponse struct {
+        Error errorBody `json:"error"`
+}
+
+type errorBody struct {
+        Code    string `json:"code"`
+        Message string `json:"message"`
+}
+
+func classify(err error) (status int, code string) {
+        <span class="cov8" title="1">switch </span>{
+        case errors.Is(err, errInvalidJSON):
+                <span class="cov8" title="1">return http.StatusBadRequest, "INVALID_JSON"</span>
+        case errors.Is(err, calculator.ErrInvalidOperands):
+                <span class="cov8" title="1">return http.StatusBadRequest, "INVALID_OPERANDS"</span>
+        case errors.Is(err, calculator.ErrUnknownOperation):
+                <span class="cov8" title="1">return http.StatusNotFound, "UNKNOWN_OPERATION"</span>
+        case errors.Is(err, errNotFound):
+                <span class="cov8" title="1">return http.StatusNotFound, "NOT_FOUND"</span>
+        case errors.Is(err, errMethodNotAllowed):
+                <span class="cov8" title="1">return http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED"</span>
+        case errors.Is(err, errPayloadTooLarge):
+                <span class="cov8" title="1">return http.StatusRequestEntityTooLarge, "PAYLOAD_TOO_LARGE"</span>
+        case errors.Is(err, errUnsupportedMediaType):
+                <span class="cov8" title="1">return http.StatusUnsupportedMediaType, "UNSUPPORTED_MEDIA_TYPE"</span>
+        case errors.Is(err, calculator.ErrDivisionByZero):
+                <span class="cov8" title="1">return http.StatusUnprocessableEntity, "DIVISION_BY_ZERO"</span>
+        case errors.Is(err, calculator.ErrDomain):
+                <span class="cov8" title="1">return http.StatusUnprocessableEntity, "DOMAIN_ERROR"</span>
+        case errors.Is(err, calculator.ErrOutOfRange):
+                <span class="cov8" title="1">return http.StatusUnprocessableEntity, "RESULT_OUT_OF_RANGE"</span>
+        default:
+                <span class="cov8" title="1">return http.StatusInternalServerError, "INTERNAL_ERROR"</span>
+        }
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package httpapi
+
+import (
+        "net/http"
+
+        "github.com/Jacklb19/calculator/backend/internal/calculator"
+)
+
+type calculateResponse struct {
+        Operation string    `json:"operation"`
+        Operands  []float64 `json:"operands"`
+        Result    float64   `json:"result"`
+}
+
+func (s *server) handleCalculate(w http.ResponseWriter, r *http.Request) {
+        <span class="cov8" title="1">resp, err := calculate(w, r)
+        if err != nil </span>{
+                <span class="cov8" title="1">s.writeError(w, err)
+                return
+</span>        }
+        <span class="cov8" title="1">s.writeJSON(w, http.StatusOK, resp)</span>
+}
+
+func calculate(w http.ResponseWriter, r *http.Request) (calculateResponse, error) {
+        <span class="cov8" title="1">op, err := calculator.Lookup(r.PathValue("operation"))
+        if err != nil </span>{
+                <span class="cov8" title="1">return calculateResponse{}, err
+</span>        }
+        <span class="cov8" title="1">operands, err := decodeOperands(w, r)
+        if err != nil </span>{
+                <span class="cov8" title="1">return calculateResponse{}, err
+</span>        }
+        <span class="cov8" title="1">result, err := op.Apply(operands...)
+        if err != nil </span>{
+                <span class="cov8" title="1">return calculateResponse{}, err
+</span>        }
+        <span class="cov8" title="1">return calculateResponse{Operation: op.Name, Operands: operands, Result: result}, nil</span>
+}
+
+func (s *server) handleHealth(w http.ResponseWriter, _ *http.Request) {
+        <span class="cov8" title="1">s.writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+</span>}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package httpapi
+
+import (
+        "fmt"
+        "net/http"
+        "time"
+)
+
+func (s *server) recoverPanics(next http.Handler) http.Handler {
+        <span class="cov8" title="1">return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span>{
+                <span class="cov8" title="1">rec := newStatusRecorder(w)
+                defer func() </span>{
+                        <span class="cov8" title="1">v := recover()
+                        if v == nil </span>{
+                                <span class="cov8" title="1">return
+</span>                        }
+                        // ErrAbortHandler is net/http's signal to drop the connection silently.
+                        <span class="cov8" title="1">if v == http.ErrAbortHandler </span>{
+                                <span class="cov8" title="1">panic(v)</span>
+                        }
+                        <span class="cov8" title="1">err := fmt.Errorf("panic serving %s %s: %v", r.Method, r.URL.Path, v)
+                        if rec.wroteHeader </span>{
+                                <span class="cov8" title="1">s.logger.Error("panic after response started", "err", err)
+</span>                                // Too late for an error response: aborting makes the client see a broken response, not a corrupt one.
+                                <span class="cov8" title="1">panic(http.ErrAbortHandler)</span>
+                        }
+                        <span class="cov8" title="1">s.writeError(rec, err)</span>
+                }()
+                <span class="cov8" title="1">next.ServeHTTP(rec, r)</span>
+        })
+}
+
+func (s *server) logRequests(next http.Handler) http.Handler {
+        <span class="cov8" title="1">return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span>{
+                <span class="cov8" title="1">start := time.Now()
+                rec := newStatusRecorder(w)
+                next.ServeHTTP(rec, r)
+                s.logger.Info("request",
+                        "method", r.Method,
+                        "path", r.URL.Path,
+                        "status", rec.status,
+                        "duration", time.Since(start),
+                )
+</span>        })
+}
+
+type statusRecorder struct {
+        http.ResponseWriter
+        status      int
+        wroteHeader bool
+}
+
+func newStatusRecorder(w http.ResponseWriter) *statusRecorder {
+        <span class="cov8" title="1">return &amp;statusRecorder{ResponseWriter: w, status: http.StatusOK}
+</span>}
+
+func (r *statusRecorder) WriteHeader(status int) {
+        <span class="cov8" title="1">if !r.wroteHeader </span>{
+                <span class="cov8" title="1">r.status = status
+                r.wroteHeader = true
+</span>        }
+        <span class="cov8" title="1">r.ResponseWriter.WriteHeader(status)</span>
+}
+
+func (r *statusRecorder) Write(p []byte) (int, error) {
+        <span class="cov8" title="1">r.wroteHeader = true
+        return r.ResponseWriter.Write(p)
+</span>}
+
+func (r *statusRecorder) Unwrap() http.ResponseWriter {
+        <span class="cov0" title="0">return r.ResponseWriter
+</span>}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package httpapi
+
+import (
+        "encoding/json"
+        "errors"
+        "fmt"
+        "io"
+        "mime"
+        "net/http"
+        "strings"
+
+        "github.com/Jacklb19/calculator/backend/internal/calculator"
+)
+
+const maxBodyBytes = 1 &lt;&lt; 10
+
+type calculateRequest struct {
+        // Pointers because encoding/json decodes null into a float64 as 0.
+        Operands []*float64 `json:"operands"`
+}
+
+func decodeOperands(w http.ResponseWriter, r *http.Request) ([]float64, error) {
+        <span class="cov8" title="1">if err := requireJSON(r); err != nil </span>{
+                <span class="cov8" title="1">return nil, err
+</span>        }
+        <span class="cov8" title="1">var req calculateRequest
+        if err := decodeStrict(w, r, &amp;req); err != nil </span>{
+                <span class="cov8" title="1">return nil, err
+</span>        }
+        <span class="cov8" title="1">return req.values()</span>
+}
+
+func requireJSON(r *http.Request) error {
+        <span class="cov8" title="1">mediaType, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+        if err != nil || mediaType != "application/json" </span>{
+                <span class="cov8" title="1">return fmt.Errorf("%w: Content-Type must be application/json", errUnsupportedMediaType)
+</span>        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func decodeStrict(w http.ResponseWriter, r *http.Request, dst any) error {
+        <span class="cov8" title="1">dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, maxBodyBytes))
+        dec.DisallowUnknownFields()
+        if err := dec.Decode(dst); err != nil </span>{
+                <span class="cov8" title="1">return decodeError(err)
+</span>        }
+        <span class="cov8" title="1">return requireEOF(dec)</span>
+}
+
+func requireEOF(dec *json.Decoder) error {
+        <span class="cov8" title="1">err := dec.Decode(&amp;struct{}{})
+        var tooLarge *http.MaxBytesError
+        switch </span>{
+        case errors.Is(err, io.EOF):
+                <span class="cov8" title="1">return nil</span>
+        case errors.As(err, &amp;tooLarge):
+                <span class="cov8" title="1">return decodeError(err)</span>
+        default:
+                <span class="cov8" title="1">return fmt.Errorf("%w: unexpected data after JSON body", errInvalidJSON)</span>
+        }
+}
+
+func decodeError(err error) error {
+        <span class="cov8" title="1">var tooLarge *http.MaxBytesError
+        var typeErr *json.UnmarshalTypeError
+        switch </span>{
+        case errors.As(err, &amp;tooLarge):
+                <span class="cov8" title="1">return fmt.Errorf("%w: limit is %d bytes", errPayloadTooLarge, tooLarge.Limit)</span>
+        case errors.Is(err, io.EOF):
+                <span class="cov8" title="1">return fmt.Errorf("%w: body is empty", errInvalidJSON)</span>
+        case errors.As(err, &amp;typeErr) &amp;&amp; strings.HasPrefix(typeErr.Field, "operands"):
+                <span class="cov8" title="1">return fmt.Errorf("%w: operands must be an array of numbers, found %s", calculator.ErrInvalidOperands, typeErr.Value)</span>
+        default:
+                <span class="cov8" title="1">return fmt.Errorf("%w: %v", errInvalidJSON, err)</span>
+        }
+}
+
+func (req calculateRequest) values() ([]float64, error) {
+        <span class="cov8" title="1">if req.Operands == nil </span>{
+                <span class="cov8" title="1">return nil, fmt.Errorf("%w: operands is required", calculator.ErrInvalidOperands)
+</span>        }
+        <span class="cov8" title="1">values := make([]float64, len(req.Operands))
+        for i, operand := range req.Operands </span>{
+                <span class="cov8" title="1">if operand == nil </span>{
+                        <span class="cov8" title="1">return nil, fmt.Errorf("%w: operand %d is null", calculator.ErrInvalidOperands, i+1)
+</span>                }
+                <span class="cov8" title="1">values[i] = *operand</span>
+        }
+        <span class="cov8" title="1">return values, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package httpapi
+
+import (
+        "encoding/json"
+        "net/http"
+)
+
+func (s *server) writeJSON(w http.ResponseWriter, status int, body any) {
+        <span class="cov8" title="1">w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(status)
+        if err := json.NewEncoder(w).Encode(body); err != nil </span>{
+                <span class="cov0" title="0">s.logger.Error("encoding response", "err", err)
+</span>        }
+}
+
+func (s *server) writeError(w http.ResponseWriter, err error) {
+        <span class="cov8" title="1">status, code := classify(err)
+        message := err.Error()
+        if status == http.StatusInternalServerError </span>{
+                <span class="cov8" title="1">s.logger.Error("internal error", "err", err)
+                message = "internal server error"
+</span>        }
+        <span class="cov8" title="1">s.writeJSON(w, status, errorResponse{Error: errorBody{Code: code, Message: message}})</span>
+}
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">// Package httpapi exposes the calculator as a JSON REST API and can also serve the frontend build.
+package httpapi
+
+import (
+        "fmt"
+        "io/fs"
+        "log/slog"
+        "net/http"
+)
+
+type server struct {
+        logger *slog.Logger
+}
+
+// NewHandler returns the application's HTTP handler. When static is non-nil
+// it is served as a single-page app on every path outside /api and /healthz.
+func NewHandler(logger *slog.Logger, static fs.FS) http.Handler {
+        <span class="cov8" title="1">s := &amp;server{logger: logger}
+</span>
+        <span class="cov8" title="1">mux := http.NewServeMux()
+        mux.Handle("/api/", s.withJSONFallback(s.apiRoutes()))
+        mux.HandleFunc("GET /healthz", s.handleHealth)
+        if static != nil </span>{
+                <span class="cov8" title="1">mux.Handle("/", spa(static))
+</span>        }
+        <span class="cov8" title="1">return s.logRequests(s.recoverPanics(mux))</span>
+}
+
+func (s *server) apiRoutes() *http.ServeMux {
+        <span class="cov8" title="1">mux := http.NewServeMux()
+        mux.HandleFunc("POST /api/v1/calculate/{operation}", s.handleCalculate)
+        return mux
+</span>}
+
+// withJSONFallback replaces the mux's built-in plain-text 404 and 405
+// responses with the API's JSON error shape, keeping the Allow header.
+func (s *server) withJSONFallback(mux *http.ServeMux) http.Handler {
+        <span class="cov8" title="1">return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span>{
+                <span class="cov8" title="1">handler, pattern := mux.Handler(r)
+                if pattern != "" </span>{
+                        // Through the mux rather than handler: only ServeHTTP populates r.PathValue.
+                        <span class="cov8" title="1">mux.ServeHTTP(w, r)
+                        return
+</span>                }
+
+                <span class="cov8" title="1">captured := newCaptureWriter()
+                handler.ServeHTTP(captured, r)
+                if captured.status == http.StatusMethodNotAllowed </span>{
+                        <span class="cov8" title="1">w.Header().Set("Allow", captured.header.Get("Allow"))
+                        s.writeError(w, fmt.Errorf("%w: %s", errMethodNotAllowed, r.Method))
+                        return
+</span>                }
+                <span class="cov8" title="1">s.writeError(w, fmt.Errorf("%w: %s", errNotFound, r.URL.Path))</span>
+        })
+}
+
+type captureWriter struct {
+        header http.Header
+        status int
+}
+
+func newCaptureWriter() *captureWriter {
+        <span class="cov8" title="1">return &amp;captureWriter{header: http.Header{}, status: http.StatusOK}
+</span>}
+
+func (c *captureWriter) Header() http.Header         { <span class="cov8" title="1">return c.header }</span>
+func (c *captureWriter) Write(p []byte) (int, error) { <span class="cov8" title="1">return len(p), nil }</span>
+func (c *captureWriter) WriteHeader(status int)      { <span class="cov8" title="1">c.status = status }</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package httpapi
+
+import (
+        "io/fs"
+        "net/http"
+        "path"
+        "strings"
+)
+
+// spa serves files from static and falls back to index.html for any path
+// that isn't a file, so client-side routes survive a page reload.
+func spa(static fs.FS) http.Handler {
+        <span class="cov8" title="1">fileServer := http.FileServerFS(static)
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span>{
+                <span class="cov8" title="1">if r.Method != http.MethodGet &amp;&amp; r.Method != http.MethodHead </span>{
+                        <span class="cov8" title="1">w.Header().Set("Allow", "GET, HEAD")
+                        http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+                        return
+</span>                }
+                <span class="cov8" title="1">if !isFile(static, r.URL.Path) </span>{
+                        <span class="cov8" title="1">http.ServeFileFS(w, r, static, "index.html")
+                        return
+</span>                }
+                <span class="cov8" title="1">fileServer.ServeHTTP(w, r)</span>
+        })
+}
+
+func isFile(fsys fs.FS, urlPath string) bool {
+        <span class="cov8" title="1">info, err := fs.Stat(fsys, strings.TrimPrefix(path.Clean(urlPath), "/"))
+        return err == nil &amp;&amp; !info.IsDir()
+</span>}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
