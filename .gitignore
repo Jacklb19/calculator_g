@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+backend/bin/
+
+# Test and coverage
+coverage/
+*.out
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editors and tools
+.vscode/
+.idea/
+.kilo/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
